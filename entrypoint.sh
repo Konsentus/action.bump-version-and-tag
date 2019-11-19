@@ -12,7 +12,7 @@ echo "GITHUB_HEAD_REF: ${GITHUB_HEAD_REF}: The branch of the head repository (eg
 echo "GITHUB_REF: ${GITHUB_REF}: The branch or tag ref that triggered the workflow"
 echo "GITHUB_SHA: ${GITHUB_SHA}: The commit SHA that triggered the workflow"
 echo "GITHUB_WORKFLOW: ${GITHUB_WORKFLOW}: The name of the workflow that triggerdd the action"
-echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}: The GitHub workspace directory path. The workspace directory contains a subdirectory with a copy of your repository if your workflow uses the actions/checkout action. If you don't use the actions/checkout action, the directory will be empty
+echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}: The GitHub workspace directory path. The workspace directory contains a subdirectory with a copy of your repository if your workflow uses the actions/checkout action. If you don't use the actions/checkout action, the directory will be empty"
 
 # for logging and returning data back to the workflow,
 # see https://help.github.com/en/articles/development-tools-for-github-actions#logging-commands
