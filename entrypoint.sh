@@ -19,30 +19,44 @@ echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}: The GitHub workspace directory path
 # echo ::set-output name={name}::{value}
 # -- DONT FORGET TO SET OUTPUTS IN action.yml IF RETURNING OUTPUTS
 
+echo "GITHUB_REF:${GITHUB_REF}"
+
 branch_name=${GITHUB_REF##*/}
-echo "branch_name: ${branch_name}"
+echo "branch_name:${branch_name}"
+
 version_tag_prefix=${branch_name}/v
-echo "version_tag_prefix: ${version_tag_prefix}"
+echo "version_tag_prefix:${version_tag_prefix}"
+
 previous_version_tag=$(git describe --abbrev=0 --match="${version_tag_prefix}*")
-echo "previous_version_tag: ${previous_version_tag}"
-previous_semantic_version=${previous_version_tag##*/v}
-echo "previous_semantic_version: ${previous_semantic_version}"
-commit_messages_since_last_version=$(git log --pretty=oneline HEAD...${previous_version_tag})
-echo "commit_messages_since_last_version: ${commit_messages_since_last_version}"
 
-version_bump_level=patch
+if [ -z "${previous_version_tag}"]; then
+  echo "Failed to find any previous version tags with the prefix ${version_tag_prefix}. Initial version will be 0.0.0"
+  new_version=0.0.0
+else
+  echo "previous_version_tag:${previous_version_tag}"
 
-if [[ $commit_messages_since_last_version == *"#major"* ]]; then
-  version_bump_level=major
-elif [[ $commit_messages_since_last_version == *"#minor"* ]]; then
-  version_bump_level=minor
+  previous_semantic_version=${previous_version_tag##*/v}
+  echo "previous_semantic_version:${previous_semantic_version}"
+
+  commit_messages_since_last_version=$(git log --pretty=oneline HEAD...${previous_version_tag})
+  echo "commit_messages_since_last_version:${commit_messages_since_last_version}"
+
+  version_bump_level=patch
+
+  if [[ $commit_messages_since_last_version == *"#major"* ]]; then
+    version_bump_level=major
+  elif [[ $commit_messages_since_last_version == *"#minor"* ]]; then
+    version_bump_level=minor
+  fi
+
+  echo "version_bump_level:${version_bump_level}"
+
+  new_version=$(semver -i ${version_bump_level} ${previous_semantic_version})
+  echo "new_version:${new_version}"
 fi
-echo "version_bump_level: ${version_bump_level}"
 
-new_version=$(semver -i ${version_bump_level} ${previous_semantic_version})
-echo "new_version: ${new_version}"
 new_version_tag=${version_tag_prefix}${new_version}
-echo "new_version_tag: ${new_version_tag}"
+echo "new_version_tag:${new_version_tag}"
 
 git_tag_result=$(git tag -a ${new_version_tag} -m "Bumping ${branch_name} version to ${new_version}")
 echo "git_tag_result: ${git_tag_result}"
