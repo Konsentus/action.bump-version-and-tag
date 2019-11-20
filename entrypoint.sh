@@ -8,7 +8,7 @@ branch_name=${GITHUB_REF##*/}
 version_tag_prefix=${branch_name}/v
 echo "version_tag_prefix:${version_tag_prefix}"
 
-previous_version_tag=$(git describe --match="${version_tag_prefix}*")
+previous_version_tag=$(git describe --tags --match="${version_tag_prefix}*")
 
 if [ -z "${previous_version_tag}"]; then
   echo "Failed to find any previous version tags with the prefix ${version_tag_prefix}. Initial version will be 0.0.0"
