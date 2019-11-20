@@ -34,7 +34,7 @@ else
 
   echo "version_bump_level:${version_bump_level}"
 
-  new_version=$(semver -i "${version_bump_level}" "${previous_semantic_version}")
+  new_version=$(semver bump "${version_bump_level}" "${previous_semantic_version}")
   echo "new_version:${new_version}"
 fi
 
