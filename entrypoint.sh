@@ -63,7 +63,7 @@ fi
 new_version_tag=${version_tag_prefix}${new_version}
 echo "new_version_tag:${new_version_tag}"
 
-git_tag_result=$(git tag -a ${new_version_tag} -m "Bumping ${branch_name} version to ${new_version}")
+git_tag_result=$(git tag ${new_version_tag})
 echo "git_tag_result: ${git_tag_result}"
 git_tag_status=$?
 echo "git_tag_status: ${git_tag_status}"
