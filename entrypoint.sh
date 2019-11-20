@@ -21,6 +21,9 @@ echo "GITHUB_TOKEN length: ${#GITHUB_TOKEN}"
 # echo ::set-output name={name}::{value}
 # -- DONT FORGET TO SET OUTPUTS IN action.yml IF RETURNING OUTPUTS
 
+git config --global user.email "actions@github.com"
+git config --global user.name "${GITHUB_ACTOR}"
+
 echo "GITHUB_REF:${GITHUB_REF}"
 
 branch_name=${GITHUB_REF##*/}
