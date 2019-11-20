@@ -8,9 +8,11 @@ branch_name=${GITHUB_REF##*/}
 version_tag_prefix=${branch_name}/v
 echo "version_tag_prefix:${version_tag_prefix}"
 
-previous_version_tag=$(git describe --tags --match="${version_tag_prefix}*")
+# previous_version_tag=$(git describe --abbrev=0 --match="${version_tag_prefix}*")
 
-if [ -z "${previous_version_tag}"]; then
+previous_version_tag=$(git describe --match="${version_tag_prefix}*")
+
+if [ -z "${previous_version_tag}" ]; then
   echo "Failed to find any previous version tags with the prefix ${version_tag_prefix}. Initial version will be 0.0.0"
   new_version=0.0.0
 else
@@ -39,7 +41,7 @@ fi
 new_version_tag=${version_tag_prefix}${new_version}
 echo "new_version_tag:${new_version_tag}"
 
-git_tag_result=$(git tag ${new_version_tag})
+git_tag_result=$(git tag -a ${new_version_tag} -m "Bump ${branch_name} to ${new_version}")
 echo "git_tag_result: ${git_tag_result}"
 git_tag_status=$?
 echo "git_tag_status: ${git_tag_status}"
