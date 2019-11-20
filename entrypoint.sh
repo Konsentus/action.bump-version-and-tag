@@ -10,7 +10,7 @@ echo "version_tag_prefix:${version_tag_prefix}"
 
 # previous_version_tag=$(git describe --abbrev=0 --match="${version_tag_prefix}*")
 
-previous_version_tag=$(git describe --match="${version_tag_prefix}*")
+previous_version_tag=$(git describe --abbrev=0 --match="${version_tag_prefix}*")
 
 if [ -z "${previous_version_tag}" ]; then
   echo "Failed to find any previous version tags with the prefix ${version_tag_prefix}. Initial version will be 0.0.0"
@@ -34,7 +34,7 @@ else
 
   echo "version_bump_level:${version_bump_level}"
 
-  new_version=$(semver -i ${version_bump_level} ${previous_semantic_version})
+  new_version=$(semver -i "${version_bump_level}" "${previous_semantic_version}")
   echo "new_version:${new_version}"
 fi
 
