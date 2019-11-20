@@ -1,38 +1,14 @@
 #!/bin/bash -l
 
-## Standard ENV variables provided
-# ---
-echo "GITHUB_ACTION: ${GITHUB_ACTION}: The name of the action"
-echo "GITHUB_ACTOR: ${GITHUB_ACTOR}: The name of the person or app that initiated the workflow"
-echo "GITHUB_EVENT_PATH: ${GITHUB_EVENT_PATH}: The path of the file with the complete webhook event payload."
-echo "GITHUB_EVENT_NAME: ${GITHUB_EVENT_NAME}: The name of the event that triggered the workflow"
-echo "GITHUB_REPOSITORY: ${GITHUB_REPOSITORY}: The owner/repository name"
-echo "GITHUB_BASE_REF: ${GITHUB_BASE_REF}: The branch of the base repository (eg the destination branch name for a PR)"
-echo "GITHUB_HEAD_REF: ${GITHUB_HEAD_REF}: The branch of the head repository (eg the source branch name for a PR)"
-echo "GITHUB_REF: ${GITHUB_REF}: The branch or tag ref that triggered the workflow"
-echo "GITHUB_SHA: ${GITHUB_SHA}: The commit SHA that triggered the workflow"
-echo "GITHUB_WORKFLOW: ${GITHUB_WORKFLOW}: The name of the workflow that triggerdd the action"
-echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}: The GitHub workspace directory path. The workspace directory contains a subdirectory with a copy of your repository if your workflow uses the actions/checkout action. If you don't use the actions/checkout action, the directory will be empty"
-
-echo "GITHUB_TOKEN length: ${#GITHUB_TOKEN}"
-
-# for logging and returning data back to the workflow,
-# see https://help.github.com/en/articles/development-tools-for-github-actions#logging-commands
-# echo ::set-output name={name}::{value}
-# -- DONT FORGET TO SET OUTPUTS IN action.yml IF RETURNING OUTPUTS
-
 git config --global user.email "actions@github.com"
 git config --global user.name "${GITHUB_ACTOR}"
 
-echo "GITHUB_REF:${GITHUB_REF}"
-
 branch_name=${GITHUB_REF##*/}
-echo "branch_name:${branch_name}"
 
 version_tag_prefix=${branch_name}/v
 echo "version_tag_prefix:${version_tag_prefix}"
 
-previous_version_tag=$(git describe --abbrev=0 --match="${version_tag_prefix}*")
+previous_version_tag=$(git describe --match="${version_tag_prefix}*")
 
 if [ -z "${previous_version_tag}"]; then
   echo "Failed to find any previous version tags with the prefix ${version_tag_prefix}. Initial version will be 0.0.0"
