@@ -1,5 +1,5 @@
-name: # the name of the action
-description: # additional descriptive info about the action
+name: Bump version and Tag
+description: This Action will bump a version tag
 runs:
   using: 'docker'
   image: 'Dockerfile'

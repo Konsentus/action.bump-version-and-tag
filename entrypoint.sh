@@ -55,6 +55,7 @@ get_bump_level_from_git_commit_messages() {
 # Configure git cli tool
 git config --global user.email "actions@github.com"
 git config --global user.name "${GITHUB_ACTOR}"
+remote_repo="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
 # Retrieve current branch name
 branch_name=${GITHUB_REF##*/}
@@ -92,7 +93,7 @@ git_tag_result=$(git tag -a ${new_version_tag} -m "Bump ${branch_name} to ${new_
 
 echo "Pushing tags"
 # Output new tag for use in other Github Action jobs
-git_push_result=$(git push --tags) || die "Failed to push new tag"
+git_push_result=$(git push "${remote_repo}" --tags) || die "Failed to push new tag"
 
 # Output the new tag for future jobs
 echo "::set-output name=new_version_tag::${new_version_tag}"
