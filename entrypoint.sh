@@ -51,6 +51,8 @@ get_bump_level_from_git_commit_messages() {
   echo ${bump_level}
 }
 
+echo "Github Actor: ${GITHUB_ACTOR}"
+
 # Configure git cli tool
 git config --global user.email "actions@github.com"
 git config --global user.name "${GITHUB_ACTOR}"
@@ -85,9 +87,11 @@ new_version=$(semver bump ${bump_level} ${previous_version}) || die "Failed to b
 # Add prefix to new version to create the new tag
 new_version_tag=${version_tag_prefix}${new_version}
 
+echo "Tagging latest ${branch_name} with ${new_version_tag}"
 # Create annotated tag and apply to the current commit
 git_tag_result=$(git tag -a ${new_version_tag} -m "Bump ${branch_name} to ${new_version}") || die "Failed to apply tag: ${new_version_tag}"
 
+echo "Pushing tags"
 # Output new tag for use in other Github Action jobs
 git_push_result=$(git push --tags) || die "Failed to push new tag"
 
