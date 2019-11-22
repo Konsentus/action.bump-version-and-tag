@@ -52,8 +52,6 @@ get_bump_level_from_git_commit_messages() {
   echo ${bump_level}
 }
 
-echo "Github Actor: ${GITHUB_ACTOR}"
-
 # Configure git cli tool
 git config --global user.email "actions@github.com"
 git config --global user.name "${GITHUB_ACTOR}"
