@@ -81,7 +81,7 @@ echo "Previous version: ${previous_version}"
 # Get version bump level from previous commit messages
 bump_level=$(get_bump_level_from_git_commit_messages ${previous_version_tag}) || die "Failed to retrieve commit messages since previous tag"
 echo "Version bump level: ${bump_level}"
-exit 0
+
 # Bump the version number
 new_version=$(semver bump ${bump_level} ${previous_version}) || die "Failed to bump the ${bump_level} version of ${previous_version}"
 
