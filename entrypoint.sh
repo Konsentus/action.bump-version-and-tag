@@ -131,7 +131,7 @@ echo "Tagging latest ${branch_name} with ${new_version_tag}"
 git tag -a -m "Hotfix applied" "${new_version_tag}" "${GITHUB_SHA}" -f || die "Failed to ${tag_message}"
 
 echo "Pushing tags"
-git push origin --tags -f || die "Failed to push ${tag_message}"
+git push "${remote_repo}" --tags -f || die "Failed to push ${tag_message}"
 
 # Output new tag for use in other Github Action jobs
 echo "::set-output name=new_version_tag::${new_version_tag}"
