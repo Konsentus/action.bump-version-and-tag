@@ -56,7 +56,7 @@ get_bump_level_from_git_commit_messages() {
 
 check_is_hotfix() {
   local branch_list
-  branch_list=$(git branch --contains="${GITHUB_SHA} -r") || return 1
+  branch_list=$(git branch --contains="${GITHUB_SHA}" -r) || return 1
   echo "github SHA: ${GITHUB_SHA}" >&2
   echo "branch name: ${branch_name}" >&2
   echo "branch list: ${branch_list}" >&2
