@@ -57,8 +57,13 @@ get_bump_level_from_git_commit_messages() {
 check_is_hotfix() {
   local branch_list
   branch_list=$(git branch --contains="${GITHUB_SHA}") || return 1
+  echo "github SHA: ${GITHUB_SHA}" >&2
+  echo "branch name: ${branch_name}" >&2
+  echo "branch list: ${branch_list}" >&2
   local number_of_branches=$(wc -l <<< "${branch_list}") || return 1
+  echo "number of branches: ${number_of_branches}" >&2
   number_of_branches=$(echo -n "${number_of_branches//[[:space:]]/}")
+  echo "number of branches after trim: ${number_of_branches}" >&2
   if [[ number_of_branches -eq "2" ]] && [[ ${branch_list}==*"hotfix/"* ]] && [[ ${branch_list}==*"${branch_name}"* ]]; then
     echo true
     return 0
