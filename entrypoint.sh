@@ -64,7 +64,7 @@ check_is_hotfix() {
   echo "number of branches: ${number_of_branches}" >&2
   number_of_branches=$(echo -n "${number_of_branches//[[:space:]]/}")
   echo "number of branches after trim: ${number_of_branches}" >&2
-  if [[ number_of_branches -eq "2" ]] && [[ ${branch_list}==*"hotfix/"* ]] && [[ ${branch_list}==*"${branch_name}"* ]]; then
+  if [[ number_of_branches -eq "3" ]] && [[ ${branch_list}==*"hotfix/"* ]] && [[ ${branch_list}==*"${branch_name}"* ]]; then
     echo true
     return 0
   fi
@@ -91,6 +91,7 @@ move_previous_tag() {
 git config --global user.email "actions@github.com"
 git config --global user.name "${GITHUB_ACTOR}"
 remote_repo="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+git fetch --all
 
 # Retrieve current branch name
 branch_name=${GITHUB_REF##*/}
