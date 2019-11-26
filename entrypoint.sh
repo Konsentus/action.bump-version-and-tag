@@ -91,7 +91,7 @@ move_previous_tag() {
 git config --global user.email "actions@github.com"
 git config --global user.name "${GITHUB_ACTOR}"
 remote_repo="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-git fetch --all
+git fetch "${remote_repo}" --all
 
 # Retrieve current branch name
 branch_name=${GITHUB_REF##*/}
