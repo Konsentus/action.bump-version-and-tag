@@ -1,5 +1,7 @@
 #!/bin/bash -l
 
+set -e
+
 # Convenience function to output an error message and exit with non-zero error code
 die() {
   local _ret=$2
@@ -63,29 +65,31 @@ get_bump_level_from_git_commit_messages() {
   echo ${bump_level}
 }
 
-check_is_hotfix() {
+is_hotfix() {
   local previous_commit
   local branch_list
   local number_of_branches
 
   # get ancestor commit.
   previous_commit=$(git rev-parse "${GITHUB_SHA}"^1) || return 1
+  echo "previous_commit ${previous_commit}"
   # get list of branches (from remote) that contain the ancestor commit
   branch_list=$(git branch --contains="${previous_commit}" -r) || return 1
+  echo "branch_list ${branch_list}"
   # count new lines to get number of branches
   number_of_branches=$(wc -l <<<"${branch_list}") || return 1
+  echo "number_of_branches ${number_of_branches}"
+
   # trim whitespace returned from wc command
   number_of_branches=$(echo -n "${number_of_branches//[[:space:]]/}")
+  echo "number_of_branches ${number_of_branches}"
 
   # if there are exactly two branches, one of which is a "hotfix" branch and the other is the current branch
   # then this is considered a hotfix
   if [[ number_of_branches -eq "2" ]] && [[ ${branch_list}==*"hotfix/"* ]] && [[ ${branch_list}==*"${branch_name}"* ]]; then
-    echo true
     return 0
   fi
-
-  echo false
-  return 0
+  return 1
 }
 
 bump_package_dot_json() {
@@ -120,9 +124,14 @@ fi
 echo "Previous version tag: ${previous_version_tag:-"Not found"}"
 
 # Perform check do determine if this was triggered by a hotfix
-is_hotfix=$(check_is_hotfix) || die "failed to check if hotfix"
+# is_hotfix=$(check_is_hotfix) || die "failed to check if hotfix"
 
-if [ "${is_hotfix}" == false ]; then
+if is_hotfix; then
+  echo "Hotfix detected. Moving previous version tag to current latest on ${branch_name}"
+  new_version=${previous_version}
+  new_version_tag=${previous_version_tag}
+  tag_message="Apply hotfix, moving ${previous_version_tag} to latest ${branch_name}"
+else
   # Get version bump level from previous commit messages
   bump_level=$(get_bump_level_from_git_commit_messages ${previous_version_tag}) || die "Failed to retrieve commit messages since previous tag"
   echo "Version bump level: ${bump_level}"
@@ -131,11 +140,6 @@ if [ "${is_hotfix}" == false ]; then
   new_version=$(semver bump ${bump_level} ${previous_version}) || die "Failed to bump the ${bump_level} version of ${previous_version}"
   new_version_tag=${version_tag_prefix}${new_version}
   tag_message="Bump ${branch_name} tag from ${previous_version_tag} to ${new_version_tag}"
-else
-  echo "Hotfix detected. Moving previous version tag to current latest on ${branch_name}"
-  new_version=${previous_version}
-  new_version_tag=${previous_version_tag}
-  tag_message="Apply hotfix, moving ${previous_version_tag} to latest ${branch_name}"
 fi
 
 echo "::set-output name=new_version_tag::${new_version_tag}"
