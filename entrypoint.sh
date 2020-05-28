@@ -86,15 +86,10 @@ is_hotfix() {
 
   # if there are exactly two branches, one of which is a "hotfix" branch and the other is the current branch
   # then this is considered a hotfix
-  if [[ number_of_branches -eq "2" ]] && [[ ${branch_list}==*"hotfix/"* ]] && [[ ${branch_list}==*"${branch_name}"* ]]; then
+  if [[ number_of_branches -eq "2" ]] && [[ ${branch_list} == *"hotfix/"* ]] && [[ ${branch_list} == *"${branch_name}"* ]]; then
     return 0
   fi
   return 1
-}
-
-bump_package_dot_json() {
-  local version=$1
-  npm version ${version} || die "Failed to bump package.json version to ${version}"
 }
 
 # Configure git cli tool
