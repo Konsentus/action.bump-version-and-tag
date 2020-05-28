@@ -88,22 +88,9 @@ check_is_hotfix() {
   return 0
 }
 
-move_previous_tag() {
-  local previous_version_tag=$1
-  local current_commit_sha=$2
-
-  # force reuse of previous tag, will remove it from its original commit
-  git tag -a -m "Hotfix applied" "${previous_version_tag}" "${current_commit_sha}" -f
-  if [ $? -ne 0 ]; then
-    echo "Failed to move tag for hotfix" >&2
-    return 1
-  fi
-  # force push of moved tag
-  git push origin --tags -f
-  if [ $? -ne 0 ]; then
-    echo "Failed to push hotfix tag" >&2
-    return 1
-  fi
+bump_package_dot_json() {
+  local version=$1
+  npm version ${version} || die "Failed to bump package.json version to ${version}"
 }
 
 # Configure git cli tool
@@ -114,8 +101,10 @@ remote_repo="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSIT
 # Retrieve current branch name
 branch_name=${GITHUB_REF##*/}
 
+main_release_branch=${INPUT_MAIN_RELEASE_BRANCH}
+
 # Create tag prefix
-version_tag_prefix=${branch_name}/v
+version_tag_prefix=$([ "${INPUT_PREFIX_WITH_BRANCH_NAME}"="true" echo "v" || echo "${branch_name}/v" ])
 
 # Retrieve previous tag that matches the version tag prefix
 previous_version_tag=$(get_previous_version_tag ${version_tag_prefix}) || die "Failed to retrieve previous tags"
@@ -144,22 +133,25 @@ if [ "${is_hotfix}" == false ]; then
   tag_message="Bump ${branch_name} tag from ${previous_version_tag} to ${new_version_tag}"
 else
   echo "Hotfix detected. Moving previous version tag to current latest on ${branch_name}"
-  # move_previous_tag "${previous_version_tag}" "${GITHUB_SHA}" || die "Failed to move tag for hotfix"
+  new_version=${previous_version}
   new_version_tag=${previous_version_tag}
   tag_message="Apply hotfix, moving ${previous_version_tag} to latest ${branch_name}"
 fi
-# Add prefix to new version to create the new tag
 
 echo "::set-output name=new_version_tag::${new_version_tag}"
 echo "::set-output name=tag_message::${tag_message}"
-# echo "Tagging latest ${branch_name} with ${new_version_tag}"
-# # Create annotated tag and apply to the current commit
-# git tag -a -m "${tag_message}" "${new_version_tag}" "${GITHUB_SHA}" -f || die "Failed to ${tag_message}"
 
-# echo "Pushing tags"
-# git push "${remote_repo}" --tags -f || die "Failed to push ${tag_message}"
+if [[ -f "./package.json" ]] && [[ ${main_release_branch}==${branch_name} ]]; then
+  npm version "${new_version}"
+fi
 
-# # Output new tag for use in other Github Action jobs
-# echo "Commit SHA: ${GITHUB_SHA} has been tagged with ${new_version_tag}"
-# echo "Successfully performed ${GITHUB_ACTION}"
-# exit with a non-zero status to flag an error/failure
+echo "Tagging latest ${branch_name} with ${new_version_tag}"
+# Create annotated tag and apply to the current commit
+git tag -a -m "${tag_message}" "${new_version_tag}" "${GITHUB_SHA}" -f || die "Failed to ${tag_message}"
+
+echo "Pushing tags"
+git push "${remote_repo}" --follow-tags -f || die "Failed to push ${tag_message}"
+
+# Output new tag for use in other Github Action jobs
+echo "Commit SHA: ${GITHUB_SHA} has been tagged with ${new_version_tag}"
+echo "Successfully performed ${GITHUB_ACTION}"
