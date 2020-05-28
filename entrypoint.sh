@@ -142,7 +142,9 @@ echo "::set-output name=new_version_tag::${new_version_tag}"
 echo "::set-output name=tag_message::${tag_message}"
 
 if [[ -f "./package.json" ]] && [[ ${main_release_branch}==${branch_name} ]]; then
-  npm version "${new_version}"
+  npm version "${new_version}" --no-git-tag-version
+  git commit -am "Bump package.json version to ${new_version}"
+  npm run publish --if-present
 fi
 
 echo "Tagging latest ${branch_name} with ${new_version_tag}"
