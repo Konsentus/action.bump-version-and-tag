@@ -104,7 +104,7 @@ branch_name=${GITHUB_REF##*/}
 main_release_branch=${INPUT_MAIN_RELEASE_BRANCH}
 
 # Create tag prefix
-version_tag_prefix=$([ "${INPUT_PREFIX_WITH_BRANCH_NAME}"="true" echo "v" || echo "${branch_name}/v" ])
+version_tag_prefix="${branch_name}/v"
 
 # Retrieve previous tag that matches the version tag prefix
 previous_version_tag=$(get_previous_version_tag ${version_tag_prefix}) || die "Failed to retrieve previous tags"
