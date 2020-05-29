@@ -90,6 +90,70 @@ is_hotfix() {
   return 1
 }
 
+generate_required_status_checks() {
+  local original=$1
+  local result=
+  if [ "$(echo -E $original | jq '.required_status_checks == null')" == "true" ]; then
+    result='null'
+  else
+    result=$(jq -n \
+      --argjson required_status_checks_strict "$(echo -E $original | jq '.required_status_checks.strict // false')" \
+      --argjson required_status_checks_contexts "[$(echo -E $original | jq '.required_status_checks.contexts[]?' -c | tr '\n' ',' | sed 's/,$//')]" \
+      '{
+            "strict": $required_status_checks_strict,
+            "contexts": $required_status_checks_contexts
+        }')
+  fi
+
+  echo $result
+}
+
+generate_required_pull_request_reviews() {
+  local original=$1
+  local result=
+  if [ "$(echo -E $original | jq '.required_pull_request_reviews == null')" == "true" ]; then
+    result='null'
+  else
+    result=$(jq -n \
+      --argjson required_pull_request_reviews_dismissal_restrictions_users "[$(echo -E $original | jq '.required_pull_request_reviews.dismissal_restrictions.users[]?.login' -c | tr '\n' ',' | sed 's/,$//')]" \
+      --argjson required_pull_request_reviews_dismissal_restrictions_teams "[$(echo -E $original | jq '.required_pull_request_reviews.dismissal_restrictions.teams[]?.login' -c | tr '\n' ',' | sed 's/,$//')]" \
+      --argjson required_pull_request_reviews_dismiss_stale_reviews "$(echo -E $original | jq '.required_pull_request_reviews.dismiss_stale_reviews // false')" \
+      --argjson required_pull_request_reviews_require_code_owner_reviews "$(echo -E $original | jq '.required_pull_request_reviews.require_code_owner_reviews // false')" \
+      --argjson required_pull_request_reviews_required_approving_review_count "$(echo -E $original | jq '.required_pull_request_reviews.required_approving_review_count // 1')" \
+      '{
+            "dismissal_restrictions": {
+                "users": $required_pull_request_reviews_dismissal_restrictions_users,
+                "teams": $required_pull_request_reviews_dismissal_restrictions_teams
+            },
+            "dismiss_stale_reviews": $required_pull_request_reviews_dismiss_stale_reviews,
+            "require_code_owner_reviews": $required_pull_request_reviews_require_code_owner_reviews,
+            "required_approving_review_count": $required_pull_request_reviews_required_approving_review_count
+        }')
+  fi
+
+  echo $result
+}
+
+generate_restrictions() {
+  local original=$1
+  local result=
+  if [ "$(echo -E $original | jq '.restrictions == null')" == "true" ]; then
+    result='null'
+  else
+    result=$(jq -n \
+      --argjson restrictions_users "[$(echo -E $original | jq '.restrictions.users[]?.login' -c | tr '\n' ',' | sed 's/,$//')]" \
+      --argjson restrictions_teams "[$(echo -E $original | jq '.restrictions.teams[]?.slug' -c | tr '\n' ',' | sed 's/,$//')]" \
+      --argjson restrictions_apps "[$(echo -E $original | jq '.restrictions.apps[]?.slug' -c | tr '\n' ',' | sed 's/,$//')]" \
+      '{
+            "users": $restrictions_users,
+            "teams": $restrictions_teams,
+            "apps": $restrictions_apps
+        }')
+  fi
+
+  echo $result
+}
+
 generate_branch_protection() {
   local original=$1
 
