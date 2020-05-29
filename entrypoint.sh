@@ -1,7 +1,5 @@
 #!/bin/bash -l
 
-set -e
-
 # Convenience function to output an error message and exit with non-zero error code
 die() {
   local _ret=$2
