@@ -174,12 +174,15 @@ echo "Tagging latest ${branch_name} with ${new_version_tag}"
 # Create annotated tag and apply to the current commit
 git tag -a -m "${tag_message}" "${new_version_tag}" -f || die "Failed to ${tag_message}"
 
-current_protection=$(hub api repos/${GITHUB_REPOSITORY}/branches/${branch_name}/protection)
+echo "Checking branch protection"
+current_protection=$(hub api repos/${GITHUB_REPOSITORY}/branches/${branch_name}/protection 2>&1)
 current_protection_status=$?
 
 if [ "$current_protection_status" -eq "0" ]; then
-  echo "${branch} : Remove branch protection"
-  hub api -X DELETE repos/${GITHUB_REPOSITORY}/branches/${local_branch}/protection
+  echo "${branch_name} : Remove branch protection"
+  hub api -X DELETE repos/${GITHUB_REPOSITORY}/branches/${branch_name}/protection
+else
+  die "Failed to retrieve branch protection: ${current_protection}"
 fi
 
 echo "Pushing tags"
