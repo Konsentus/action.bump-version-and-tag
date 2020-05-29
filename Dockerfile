@@ -4,6 +4,6 @@ COPY lib/semver.sh ./lib/semver
 RUN install ./lib/semver /usr/local/bin
 COPY entrypoint.sh /entrypoint.sh
 
-RUN apk add --no-cache bash git npm hub
+RUN apk add --no-cache bash git npm hub http://dl-cdn.alpinelinux.org/alpine/edge/testing
 
 ENTRYPOINT ["/entrypoint.sh"]
