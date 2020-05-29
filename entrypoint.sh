@@ -92,6 +92,29 @@ is_hotfix() {
   return 1
 }
 
+generate_branch_protection() {
+  local original=$1
+
+  local result=$(jq -n \
+    --argjson required_status_checks "$(generate_required_status_checks $original)" \
+    --argjson enforce_admins_enabled "$(echo -E $original | jq '.enforce_admins.enabled // false')" \
+    --argjson required_pull_request_reviews "$(generate_required_pull_request_reviews $original)" \
+    --argjson restrictions "$(generate_restrictions $original)" \
+    '{
+        "required_status_checks": $required_status_checks,
+        "enforce_admins": $enforce_admins_enabled,
+        "required_pull_request_reviews": $required_pull_request_reviews,
+        "restrictions": $restrictions
+    }')
+
+  if [ "$?" -ne 0 ]; then
+    echo "Error when attempting to generate branch protection"
+    exit 2
+  fi
+
+  echo $result
+}
+
 # Configure git cli tool
 git config --global user.email "actions@github.com"
 git config --global user.name "${GITHUB_ACTOR}"
@@ -100,7 +123,7 @@ remote_repo="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSIT
 # Retrieve current branch name
 branch_name=${GITHUB_REF##*/}
 
-main_release_branch=${INPUT_MAIN_RELEASE_BRANCH}
+main_release_branch=${INPUT_RELEASE_BRANCH}
 
 # Create tag prefix
 version_tag_prefix="${branch_name}/v"
@@ -140,7 +163,7 @@ fi
 echo "::set-output name=new_version_tag::${new_version_tag}"
 echo "::set-output name=tag_message::${tag_message}"
 
-if [[ -f "./package.json" ]] && [[ ${main_release_branch}==${branch_name} ]]; then
+if [[ -f "./package.json" ]] && [[ ${release_branch}==${branch_name} ]]; then
   echo "Bumping package.json to ${new_version}"
   npm version "${new_version}" --no-git-tag-version
   echo "Commiting updated package.json"
@@ -149,10 +172,24 @@ fi
 
 echo "Tagging latest ${branch_name} with ${new_version_tag}"
 # Create annotated tag and apply to the current commit
-git tag -a -m "${tag_message}" "${new_version_tag}" "${GITHUB_SHA}" -f || die "Failed to ${tag_message}"
+git tag -a -m "${tag_message}" "${new_version_tag}" -f || die "Failed to ${tag_message}"
+
+current_protection=$(hub api repos/${GITHUB_REPOSITORY}/branches/${branch_name}/protection)
+current_protection_status=$?
+
+if [ "$current_protection_status" -eq "0" ]; then
+  echo "${branch} : Remove branch protection"
+  hub api -X DELETE repos/${GITHUB_REPOSITORY}/branches/${local_branch}/protection
+fi
 
 echo "Pushing tags"
-git push "${remote_repo}" --follow-tags -f || die "Failed to push ${tag_message}"
+git push "${remote_repo}" --follow-tags --force || die "Failed to push ${tag_message}"
+
+if [ "$current_protection_status" -eq "0" ]; then
+  echo "${branch_name} : Re-enable branch protection"
+  echo $(generate_branch_protection ${current_protection}) |
+    hub api -X PUT repos/${GITHUB_REPOSITORY}/branches/${branch_name}/protection --input -
+fi
 
 # Output new tag for use in other Github Action jobs
 echo "Commit SHA: ${GITHUB_SHA} has been tagged with ${new_version_tag}"
