@@ -18,7 +18,7 @@ get_previous_version_tag() {
   local git_decribe_exit_code=$?
 
   if [ ${git_decribe_exit_code} -ne 0 ]; then
-    if [[ ${previous_version_tag} == *"No names found"* ]]; then
+    if [[ ${previous_version_tag} == *"No names found"* ]] || [[ ${previous_version_tag} == *"No tags can describe"* ]]; then
       # Effectively an empty response so return success
       return 0
     else
