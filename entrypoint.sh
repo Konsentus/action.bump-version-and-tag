@@ -252,8 +252,10 @@ git push "${remote_repo}" --follow-tags --force || die "Failed to push ${tag_mes
 
 if [ "$current_protection_status" -eq "0" ]; then
   echo "${branch_name} : Re-enable branch protection"
+  # Custom header is required for setting number of required pull request reviews
+  # see https://developer.github.com/v3/repos/branches/#get-branch-protection
   echo $(generate_branch_protection ${current_protection}) |
-    hub api -X PUT repos/${GITHUB_REPOSITORY}/branches/${branch_name}/protection --input -
+    hub api -X PUT repos/${GITHUB_REPOSITORY}/branches/${branch_name}/protection -H "accept: application/vnd.github.luke-cage-preview+json" --input -
 fi
 
 # Output new tag for use in other Github Action jobs
