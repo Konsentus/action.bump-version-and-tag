@@ -65,30 +65,6 @@ get_bump_level_from_git_commit_messages() {
 
 is_hotfix() {
   source_branch=$(hub api /repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls -H "accept: application/vnd.github.groot-preview+json" | jq .[0].head.label)
-  # local previous_commit
-  # local branch_list
-  # local number_of_branches
-
-  # # get ancestor commit.
-  # previous_commit=$(git rev-parse "${GITHUB_SHA}"^1) || return 1
-  # echo "previous_commit ${previous_commit}"
-  # # get list of branches (from remote) that contain the ancestor commit
-  # branch_list=$(git branch --contains="${previous_commit}" -r) || return 1
-  # echo "branch_list ${branch_list}"
-  # # count new lines to get number of branches
-  # number_of_branches=$(wc -l <<<"${branch_list}") || return 1
-  # echo "number_of_branches ${number_of_branches}"
-
-  # # trim whitespace returned from wc command
-  # number_of_branches=$(echo -n "${number_of_branches//[[:space:]]/}")
-  # echo "number_of_branches ${number_of_branches}"
-
-  # if there are exactly two branches, one of which is a "hotfix" branch and the other is the current branch
-  # then this is considered a hotfix
-  # if [[ number_of_branches -eq "2" ]] && [[ ${branch_list} == *"hotfix/"* ]] && [[ ${branch_list} == *"${branch_name}"* ]]; then
-  #   return 0
-  # fi
-  # return 1
   if [[ ${source_branch} == *"hotfix/"* ]]; then
     return 0
   fi
