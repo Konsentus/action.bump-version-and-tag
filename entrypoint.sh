@@ -115,19 +115,19 @@ echo "Previous version tag: ${previous_version_tag:-"Not found"}"
 
 # Perform check do determine if this was triggered by a hotfix
 if is_hotfix; then
-    # Get version bump level from previous commit messages
-    bump_level=$(get_bump_level_from_git_commit_messages ${previous_version_tag}) || die "Failed to retrieve commit messages since previous tag"
-    echo "Version bump level: ${bump_level}"
-
-    # Bump the version number
-    new_version=$(semver bump ${bump_level} ${previous_version}) || die "Failed to bump the ${bump_level} version of ${previous_version}"
-    new_version_tag=${version_tag_prefix}${new_version}
-    tag_message="Bump ${branch_name} tag from ${previous_version_tag} to ${new_version_tag}"
-else
   echo "Hotfix detected. Moving previous version tag to current latest on ${branch_name}"
   # move_previous_tag "${previous_version_tag}" "${GITHUB_SHA}" || die "Failed to move tag for hotfix"
   new_version_tag=${previous_version_tag}
   tag_message="Apply hotfix, moving ${previous_version_tag} to latest ${branch_name}"
+else
+  # Get version bump level from previous commit messages
+  bump_level=$(get_bump_level_from_git_commit_messages ${previous_version_tag}) || die "Failed to retrieve commit messages since previous tag"
+  echo "Version bump level: ${bump_level}"
+
+  # Bump the version number
+  new_version=$(semver bump ${bump_level} ${previous_version}) || die "Failed to bump the ${bump_level} version of ${previous_version}"
+  new_version_tag=${version_tag_prefix}${new_version}
+  tag_message="Bump ${branch_name} tag from ${previous_version_tag} to ${new_version_tag}"
 fi
 # Add prefix to new version to create the new tag
 
