@@ -1,8 +1,8 @@
 # see: https://github.com/probot/settings
 
 repository:
-  name: template.github-action
-  description: Basic template repo for Github actions
+  name: action.bump-version-and-tag
+  description: Github action for bumping the latest version of a tag (with prefix pattern) using semver
   topics: action
   private: false
   has_issues: false
@@ -17,8 +17,6 @@ repository:
 teams:
   - name: engineers
     permission: admin
-  - name: engineers-pullassigner
-    permission: push
 
 branches:
   - name: master
