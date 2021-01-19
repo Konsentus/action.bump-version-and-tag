@@ -98,7 +98,11 @@ remote_repo="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSIT
 branch_name=${GITHUB_REF##*/}
 
 # Create tag prefix
-version_tag_prefix=${branch_name}/v
+if [ "${INPUT_PREFIX}" == "{default}" ]; then
+  version_tag_prefix=${branch_name}/v
+else
+  version_tag_prefix=${INPUT_PREFIX}
+fi
 
 # Retrieve previous tag that matches the version tag prefix
 previous_version_tag=$(get_previous_version_tag ${version_tag_prefix}) || die "Failed to retrieve previous tags"
