@@ -14,7 +14,7 @@ get_previous_version_tag() {
 
   # Get last annoted tag that has the version tag prefix
   # stderr redirected to stdout to collect any error messages
-  previous_version_tag=$(git describe --abbrev=0 --match="${version_tag_prefix}*" 2>&1)
+  previous_version_tag=$(git describe --abbrev=0 --match="${version_tag_prefix}?*.?*.?*" 2>&1)
   local git_decribe_exit_code=$?
 
   if [ ${git_decribe_exit_code} -ne 0 ]; then
