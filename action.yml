@@ -1,11 +1,11 @@
 name: Bump version and Tag
 description: This Action will bump a version tag
-inputs:
-  prefix:
-    description: 'Prefix to use for tag, default: {branch-name}/v'
-    default: '{default}'
-    required: false
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: "docker"
+  image: "Dockerfile"
 # for additional options, see: https://help.github.com/en/articles/metadata-syntax-for-github-actions
+inputs:
+  release_branch:
+    required: false
+    default: production
+    description: The branch name that contains the final release
