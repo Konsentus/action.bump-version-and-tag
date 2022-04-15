@@ -3,8 +3,6 @@
 # Since Git v2.35.2 current working directory should be set as safe explicitly (fix for CVE-2022-24765)
 git config --global --add safe.directory ${PWD}
 
-echo "CHANGED!"
-
 # Convenience function to output an error message and exit with non-zero error code
 die() {
   local _ret=$2
@@ -169,7 +167,8 @@ git config --global user.name "${GITHUB_ACTOR}"
 remote_repo="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
 # Retrieve current branch name
-branch_name=${GITHUB_REF##*/}
+branch_name=$GITHUB_REF_NAME
+echo $branch_name
 
 main_release_branch=${INPUT_RELEASE_BRANCH}
 
@@ -223,8 +222,6 @@ echo "Tagging latest ${branch_name} with ${new_version_tag}"
 git tag -a -m "${tag_message}" "${new_version_tag}" -f || die "Failed to ${tag_message}"
 
 echo "Checking branch protection"
-echo $GITHUB_REPOSITORY
-echo $branch_name
 echo "hub api repos/${GITHUB_REPOSITORY}/branches/${branch_name}/protection"
 current_protection=$(hub api repos/${GITHUB_REPOSITORY}/branches/${branch_name}/protection 2>&1)
 current_protection_status=$?
