@@ -22,7 +22,7 @@ jobs:
 
       - name: Bump and Tag
         id: bump_and_tag
-        uses: konsentus/action.bump-version-and-tag@master
+        uses: konsentus/action.bump-version-and-tag@hotfix/fix-failing-update
 
       - name: Configure Git
         run: |
