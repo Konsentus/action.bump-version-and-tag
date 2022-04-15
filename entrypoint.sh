@@ -221,6 +221,8 @@ echo "Tagging latest ${branch_name} with ${new_version_tag}"
 git tag -a -m "${tag_message}" "${new_version_tag}" -f || die "Failed to ${tag_message}"
 
 echo "Checking branch protection"
+echo $GITHUB_REPOSITORY
+echo $branch_name
 echo "hub api repos/${GITHUB_REPOSITORY}/branches/${branch_name}/protection"
 current_protection=$(hub api repos/${GITHUB_REPOSITORY}/branches/${branch_name}/protection 2>&1)
 current_protection_status=$?

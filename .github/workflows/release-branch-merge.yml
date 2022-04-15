@@ -23,8 +23,6 @@ jobs:
       - name: Bump and Tag
         id: bump_and_tag
         uses: konsentus/action.bump-version-and-tag@master
-        with:
-          prefix: 'v'
 
       - name: Configure Git
         run: |
