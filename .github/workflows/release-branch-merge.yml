@@ -4,7 +4,7 @@ name: Push workflow for release branches
 on:
   push:
     branches:
-      - 'hotfix/fix-failing-update'
+      - 'master'
 
 env:
   GITHUB_TOKEN: ${{ secrets.USER_TOKEN }}
@@ -22,7 +22,7 @@ jobs:
 
       - name: Bump and Tag
         id: bump_and_tag
-        uses: konsentus/action.bump-version-and-tag@hotfix/fix-failing-update
+        uses: konsentus/action.bump-version-and-tag@master
 
       - name: Configure Git
         run: |
