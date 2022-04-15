@@ -167,7 +167,7 @@ git config --global --add safe.directory ${PWD}
 remote_repo="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
 # Retrieve current branch name
-branch_name=$GITHUB_REF_NAME
+branch_name=${GITHUB_REF##*/}
 
 main_release_branch=${INPUT_RELEASE_BRANCH}
 
@@ -209,38 +209,12 @@ fi
 echo "::set-output name=new_version_tag::${new_version_tag}"
 echo "::set-output name=tag_message::${tag_message}"
 
-# if [[ -f "./package.json" ]] && [[ ${release_branch}==${branch_name} ]]; then
-#   echo "Bumping package.json to ${new_version}"
-#   npm version "${new_version}" --no-git-tag-version
-#   echo "Commiting updated package.json"
-#   git commit -am "Bump package.json version to ${new_version}"
-# fi
-
 echo "Tagging latest ${branch_name} with ${new_version_tag}"
 # Create annotated tag and apply to the current commit
 git tag -a -m "${tag_message}" "${new_version_tag}" -f || die "Failed to ${tag_message}"
 
-echo "Checking branch protection"
-current_protection=$(hub api repos/${GITHUB_REPOSITORY}/branches/${branch_name}/protection 2>&1)
-current_protection_status=$?
-
-if [ "$current_protection_status" -eq "0" ]; then
-  echo "${branch_name} : Remove branch protection"
-  hub api -X DELETE repos/${GITHUB_REPOSITORY}/branches/${branch_name}/protection
-else
-  die "Failed to retrieve branch protection: ${current_protection}"
-fi
-
 echo "Pushing tags"
 git push "${remote_repo}" HEAD:${branch_name} --follow-tags --force || die "Failed to push ${tag_message}"
-
-if [ "$current_protection_status" -eq "0" ]; then
-  echo "${branch_name} : Re-enable branch protection"
-  # Custom header is required for setting number of required pull request reviews
-  # see https://developer.github.com/v3/repos/branches/#get-branch-protection
-  echo $(generate_branch_protection ${current_protection}) |
-    hub api -X PUT repos/${GITHUB_REPOSITORY}/branches/${branch_name}/protection -H "accept: application/vnd.github.luke-cage-preview+json" --input -
-fi
 
 # Output new tag for use in other Github Action jobs
 echo "Commit SHA: ${GITHUB_SHA} has been tagged with ${new_version_tag}"
