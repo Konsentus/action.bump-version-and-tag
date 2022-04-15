@@ -232,7 +232,7 @@ else
 fi
 
 echo "Pushing tags"
-git push "${remote_repo}" --follow-tags --force || die "Failed to push ${tag_message}"
+git push "${remote_repo}" HEAD:${branch_name} --follow-tags --force || die "Failed to push ${tag_message}"
 
 if [ "$current_protection_status" -eq "0" ]; then
   echo "${branch_name} : Re-enable branch protection"
