@@ -1,8 +1,5 @@
 #!/bin/bash -l
 
-# Since Git v2.35.2 current working directory should be set as safe explicitly (fix for CVE-2022-24765)
-git config --global --add safe.directory ${PWD}
-
 # Convenience function to output an error message and exit with non-zero error code
 die() {
   local _ret=$2
@@ -162,8 +159,11 @@ generate_branch_protection() {
 }
 
 # Configure git cli tool
+
 git config --global user.email "actions@github.com"
-git config --global user.name "${GITHUB_ACTOR}"
+# git config --global user.name "${GITHUB_ACTOR}"
+# Since Git v2.35.2 current working directory should be set as safe explicitly (fix for CVE-2022-24765)
+git config --global --add safe.directory ${PWD}
 remote_repo="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
 # Retrieve current branch name
