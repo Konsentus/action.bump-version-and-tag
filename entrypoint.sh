@@ -3,6 +3,8 @@
 # Since Git v2.35.2 current working directory should be set as safe explicitly (fix for CVE-2022-24765)
 git config --global --add safe.directory ${PWD}
 
+echo "CHANGED!"
+
 # Convenience function to output an error message and exit with non-zero error code
 die() {
   local _ret=$2
