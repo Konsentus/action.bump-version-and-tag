@@ -209,13 +209,6 @@ fi
 echo "::set-output name=new_version_tag::${new_version_tag}"
 echo "::set-output name=tag_message::${tag_message}"
 
-if [[ -f "./package.json" ]] && [[ ${release_branch}==${branch_name} ]]; then
-  echo "Bumping package.json to ${new_version}"
-  npm version "${new_version}" --no-git-tag-version
-  echo "Commiting updated package.json"
-  git commit -am "Bump package.json version to ${new_version}"
-fi
-
 echo "Tagging latest ${branch_name} with ${new_version_tag}"
 # Create annotated tag and apply to the current commit
 git tag -a -m "${tag_message}" "${new_version_tag}" -f || die "Failed to ${tag_message}"
