@@ -4,7 +4,7 @@ name: Push workflow for release branches
 on:
   push:
     branches:
-      - 'hotfix/fix-failing-update '
+      - 'hotfix/fix-failing-update'
 
 env:
   GITHUB_TOKEN: ${{ secrets.USER_TOKEN }}
